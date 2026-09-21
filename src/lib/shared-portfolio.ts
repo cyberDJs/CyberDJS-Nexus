@@ -4,6 +4,8 @@ import type { RemotePortfolioSource } from "./remote-portfolios";
 
 export type PortfolioOwner = "Eimy" | "Johny";
 export type PortfolioScope = "All" | PortfolioOwner | "Shared";
+export type RepositoryNamespace = "cyberdjs" | "eimyroot" | "horsedriver" | "external" | "unknown";
+export type RepositoryNamespaceScope = "All" | RepositoryNamespace;
 export type DriftState = "aligned" | "head-drift" | "working-tree" | "head-and-working-tree" | "single-source";
 
 export function ownerForLocalRoot(root: string): PortfolioOwner {
@@ -11,6 +13,17 @@ export function ownerForLocalRoot(root: string): PortfolioOwner {
   if (normalized === "/Users/eimyna/0_DEV") return "Eimy";
   if (normalized === "/Users/horsedriver/0_DEV") return "Johny";
   throw new Error(`Unsupported local portfolio root for owner attribution: ${root}`);
+}
+
+export function repositoryNamespaceFor(repositoryId: string | null): RepositoryNamespace {
+  if (!repositoryId) return "unknown";
+  const [host = "", namespace = ""] = repositoryId.split("/");
+  if (host.toLowerCase() !== "github.com" || !namespace) return "external";
+  const normalized = namespace.toLowerCase();
+  if (normalized === "cyberdjs") return "cyberdjs";
+  if (normalized === "eimyroot") return "eimyroot";
+  if (normalized === "horsedriver") return "horsedriver";
+  return "external";
 }
 
 export type SharedProjectSide = {
@@ -32,6 +45,7 @@ export type SharedProject = {
   key: string;
   name: string;
   repositoryId: string | null;
+  repositoryNamespace: RepositoryNamespace;
   eimy: SharedProjectSide | null;
   johny: SharedProjectSide | null;
   isShared: boolean;
@@ -66,7 +80,7 @@ export function buildSharedPortfolio(local: PortfolioSnapshot, remoteSources: Re
   const map = new Map<string, SharedProject>();
   const add = (owner: PortfolioOwner, source: "local" | "remote", project: ProjectLike) => {
     const key = keyFor(owner, project);
-    const current = map.get(key) ?? { key, name: project.name, repositoryId: project.repositoryId, eimy: null, johny: null, isShared: false, drift: "single-source" as DriftState };
+    const current = map.get(key) ?? { key, name: project.name, repositoryId: project.repositoryId, repositoryNamespace: repositoryNamespaceFor(project.repositoryId), eimy: null, johny: null, isShared: false, drift: "single-source" as DriftState };
     if (owner === "Eimy") current.eimy = side(owner, source, project);
     else current.johny = side(owner, source, project);
     current.isShared = Boolean(current.eimy && current.johny);
@@ -91,4 +105,8 @@ export function matchesPortfolioScope(project: SharedProject, scope: PortfolioSc
   if (scope === "All") return true;
   if (scope === "Shared") return project.isShared;
   return scope === "Eimy" ? Boolean(project.eimy) : Boolean(project.johny);
+}
+
+export function matchesRepositoryNamespace(project: SharedProject, scope: RepositoryNamespaceScope): boolean {
+  return scope === "All" || project.repositoryNamespace === scope;
 }

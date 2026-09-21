@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { normalizeGitRemote } from "../src/lib/local-projects.ts";
-import { buildSharedPortfolio, matchesPortfolioScope, ownerForLocalRoot } from "../src/lib/shared-portfolio.ts";
+import { buildSharedPortfolio, matchesPortfolioScope, matchesRepositoryNamespace, ownerForLocalRoot, repositoryNamespaceFor } from "../src/lib/shared-portfolio.ts";
 
 function localProject(overrides = {}) {
   return {
@@ -55,6 +55,28 @@ test("attributes Johny local projects to Johny and merges Eimy as remote collabo
   assert.equal(shared[0].isShared, true);
   assert.equal(shared[0].drift, "head-drift");
   assert.equal(matchesPortfolioScope(shared[0], "Johny"), true);
+});
+
+
+test("classifies repository namespace independently from persona", () => {
+  assert.equal(repositoryNamespaceFor("github.com/cyberdjs/cybercore"), "cyberdjs");
+  assert.equal(repositoryNamespaceFor("github.com/eimyroot/private-tool"), "eimyroot");
+  assert.equal(repositoryNamespaceFor("github.com/horsedriver/cryptoradar"), "horsedriver");
+  assert.equal(repositoryNamespaceFor("github.com/acidanthera/opencorepkg"), "external");
+  assert.equal(repositoryNamespaceFor("git.sr.ht/~grimler/Heimdall"), "external");
+  assert.equal(repositoryNamespaceFor(null), "unknown");
+});
+
+test("namespace filtering does not change persona presence", () => {
+  const shared = buildSharedPortfolio(
+    localSnapshot([localProject({ name: "Personal", repositoryId: "github.com/eimyroot/personal" })]),
+    johnySource([]),
+  );
+  assert.equal(shared[0].repositoryNamespace, "eimyroot");
+  assert.equal(matchesRepositoryNamespace(shared[0], "eimyroot"), true);
+  assert.equal(matchesRepositoryNamespace(shared[0], "horsedriver"), false);
+  assert.equal(matchesPortfolioScope(shared[0], "Eimy"), true);
+  assert.equal(matchesPortfolioScope(shared[0], "Johny"), false);
 });
 
 test("normalizes HTTPS and SSH GitHub origins to one credential-free identity", () => {

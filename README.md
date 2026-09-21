@@ -4,7 +4,7 @@ Shared CyberDJS project telemetry dashboard. The repository directory remains `P
 
 ## Current slice
 
-The dashboard scans real Eimy-local Git repositories at request time and combines them with validated cached collaborator snapshots. Source projects are strictly read-only. It observes branch, HEAD, working-tree state, normalized credential-free Git origin identity, recent activity, detected stack, tests and project-authority files.
+The dashboard scans the current persona's local Git repositories at request time and combines them with validated cached collaborator snapshots. Source projects are strictly read-only. It observes branch, HEAD, working-tree state, normalized credential-free Git origin identity, recent activity, detected stack, tests and project-authority files.
 
 It deliberately does **not** invent budget, progress, milestones, owners or delivery status when those facts are not present in a canonical project source.
 
@@ -143,6 +143,8 @@ npm run portfolio:pull:johny
 ```
 
 The dashboard derives the live local owner from the local portfolio root (`/Users/eimyna/0_DEV` → Eimy, `/Users/horsedriver/0_DEV` → Johny) and merges the other owner from a validated cached snapshot. `All / Eimy / Johny / Shared` filters operate on the unified identity model. Dedupe occurs only when both sides expose the same normalized Git `repositoryId`; same-name repositories without a remote identity are intentionally kept separate. Drift reports branch/HEAD divergence and local working-tree changes.
+
+Persona and repository ownership are independent dimensions. Eimy maps to personal GitHub namespace `eimyroot`, Johny maps to `horsedriver`, and `cyberdjs` is the shared CyberDJS organization. The dashboard exposes an independent namespace filter: `All namespaces / CyberDJS / Eimy · eimyroot / Johny · horsedriver / External / Unknown`. Repository state, stack mix, governance coverage, recent activity and attention metrics are rendered with separable Eimy and Johny outputs rather than silently aggregating the two personas.
 
 ## Portable Johny collector
 
