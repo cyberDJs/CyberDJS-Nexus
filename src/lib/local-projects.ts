@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
@@ -13,7 +14,6 @@ export type ProjectSnapshot = {
 };
 export type PortfolioSnapshot = { root: string; generatedAt: string; projects: ProjectSnapshot[] };
 
-const DEFAULT_ROOT = "/Users/eimyna/0_DEV";
 const DEFAULT_EXCLUDED = ["SKILLS", "VOODOO-SOURCES", "VOODOO-SKILLSET", "ProjectCommandCenter"];
 const AUTHORITIES = ["WORLD_CLASS_SOFTWARE_DEVOPS_OPERATING_MODE.md", "PROJECT_CONSTITUTION.md", "PROJECT_STATE.md", "CURRENT_PRODUCT_STATE.md", "README.md"];
 const exec = promisify(execFile);
@@ -81,8 +81,12 @@ async function inspectProject(path: string, now: number): Promise<ProjectSnapsho
   return { name: path.split("/").pop() ?? path, path, branch, head: head || "—", state, dirtyFiles, lastCommitAt, lastSubject: subject || "No commit history", category: detectCategory(path), activityDays, signal, hasReadme, hasGovernance, hasTests, authority, repositoryId: normalizeGitRemote(origin) };
 }
 
+export function resolvePortfolioRoot(options: { root?: string; envRoot?: string; home?: string } = {}): string {
+  return options.root ?? options.envRoot ?? process.env.PCC_PORTFOLIO_ROOT ?? join(options.home ?? homedir(), "0_DEV");
+}
+
 export async function scanLocalProjects(options: { root?: string; excluded?: string[] } = {}): Promise<PortfolioSnapshot> {
-  const root = options.root ?? process.env.PCC_PORTFOLIO_ROOT ?? DEFAULT_ROOT;
+  const root = resolvePortfolioRoot({ root: options.root });
   if (!existsSync(root)) throw new Error(`Portfolio root does not exist: ${root}`);
   const excluded = new Set(options.excluded ?? DEFAULT_EXCLUDED);
   const now = Date.now();

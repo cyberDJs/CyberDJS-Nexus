@@ -20,7 +20,8 @@
     "portfolio:snapshot:johny": "node scripts/portfolio-publisher.mjs snapshot johny",
     "portfolio:publish:johny": "node scripts/portfolio-publisher.mjs publish johny",
     "portfolio:pull:johny": "node scripts/portfolio-pull.mjs johny",
-    "test:collector": "node --test scripts/cyberdjs-nexus-collector.test.mjs"
+    "test:collector": "node --test scripts/cyberdjs-nexus-collector.test.mjs",
+    "test:local": "node --test scripts/local-projects.test.mjs"
   },
   "license": "UNLICENSED",
   "private": true,

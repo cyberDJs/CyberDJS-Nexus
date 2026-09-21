@@ -12,7 +12,7 @@ An optional Nextcloud/WebDAV adapter is included for the future shared Eimy/John
 
 ## Boundaries
 
-- Reads direct child Git repositories under `/Users/eimyna/0_DEV`.
+- Reads direct child Git repositories under the current macOS user's `~/0_DEV` by default; `PCC_PORTFOLIO_ROOT` can override the root explicitly.
 - Excludes `SKILLS`, `VOODOO-SOURCES`, `VOODOO-SKILLSET` and this dashboard repository.
 - Does not read secret values or environment files during normal dashboard operation.
 - Does not modify scanned projects.
