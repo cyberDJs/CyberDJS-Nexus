@@ -1,0 +1,45 @@
+{
+  "name": "project-command-center",
+  "version": "1.0.0",
+  "description": "Modern multi-project planning and tracking dashboard",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:webdav": "node --test scripts/nextcloud-webdav.test.mjs",
+    "webdav:check": "node scripts/nextcloud-webdav.mjs check",
+    "webdav:test": "node scripts/nextcloud-webdav.mjs test",
+    "test:portfolio": "node --test scripts/portfolio-publisher.test.mjs",
+    "portfolio:snapshot": "node scripts/portfolio-publisher.mjs snapshot",
+    "portfolio:publish": "node scripts/portfolio-publisher.mjs publish",
+    "test:remote": "node --test scripts/portfolio-pull.test.mjs",
+    "portfolio:pull": "node scripts/portfolio-pull.mjs eimy",
+    "test:shared": "node --test scripts/shared-portfolio.test.mjs",
+    "portfolio:snapshot:johny": "node scripts/portfolio-publisher.mjs snapshot johny",
+    "portfolio:publish:johny": "node scripts/portfolio-publisher.mjs publish johny",
+    "portfolio:pull:johny": "node scripts/portfolio-pull.mjs johny",
+    "test:collector": "node --test scripts/cyberdjs-nexus-collector.test.mjs"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "lucide-react": "^1.47.0",
+    "next": "^16.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.5",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
+  },
+  "type": "module"
+}
