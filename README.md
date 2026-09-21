@@ -167,3 +167,41 @@ node cyberdjs-nexus-collector.mjs \
 ```
 
 The output is schema v1 compatible with CyberDJS Nexus. `repositoryId` is normalized from Git `origin` and strips protocol/userinfo so credentials are not emitted. The collector refuses to write its output inside any scanned source repository.
+
+
+## Collaboration intelligence (10 assets)
+
+Nexus now derives a symmetric collaboration view for Eimy and Johny from read-only Git metadata. Every collaboration metric stays attributable to a persona and normalized `repositoryId`; `Shared` remains a presence relationship, never a third owner.
+
+1. **Daily Activity Feed** — observed commits, branch switches and working-tree state with timestamps; no commit subjects or source content are exported.
+2. **Morning → Now Delta** — local-day baseline HEAD versus current HEAD plus observed commit and change-volume counts.
+3. **Shared Collision Radar** — highlights shared repositories where both personas are active or where HEAD/branch/working-tree drift makes coordination useful.
+4. **Handoff Board** — derives review/sync/work-in-progress guidance from persona activity and shared-repository drift.
+5. **Persona Daily Pulse** — touched repositories, observed commits, dirty repositories, shared activity and aggregate change volume, always Eimy/Johny separated.
+6. **Telemetry Freshness** — shows whether each persona is live, cached, aging, stale or missing.
+7. **Sync / Ahead-Behind** — reports Git's locally known upstream counters and the age of the last observed `FETCH_HEAD`; it never presents stale local refs as live GitHub truth.
+8. **Change Volume** — file, insertion and deletion counts from Git shortstat only; file contents are never collected.
+9. **7-day Activity Heatmap** — retained metadata history per persona/day, stored outside the product repository.
+10. **GitHub Collaboration Layer** — read-only repository/PR/review/Actions metadata for a bounded set of GitHub repositories. Public metadata works without credentials; an operator may optionally provide `PCC_GITHUB_TOKEN`/`GITHUB_TOKEN` for private repositories and higher rate limits. Nexus never retrieves a token itself.
+
+### External history cache
+
+Dashboard refreshes retain sanitized metadata snapshots under:
+
+```text
+~/Library/Application Support/ProjectCommandCenter/history/
+```
+
+`PCC_HISTORY_DIR` can override that location. History is kept for roughly eight days, capped per persona, written atomically with private filesystem permissions, and excludes source paths, commit subjects, raw remotes, credentials and source-file content.
+
+### GitHub live metadata
+
+The GitHub layer is read-only and failure-tolerant. It caches successful metadata briefly and reports `unavailable` instead of inventing state when GitHub is offline, rate-limited, private without authorization, or otherwise inaccessible. Set `PCC_GITHUB_DISABLED=1` to disable all GitHub network reads while keeping local/cache telemetry functional.
+
+The schema-v1 portable snapshot was extended additively with optional activity, change-volume and upstream fields. Older cached snapshots remain valid and default those fields to empty/unknown values. For full cross-machine parity, both personas should run the updated collector/dashboard and publish a fresh snapshot.
+
+Additional verification entrypoint:
+
+```bash
+npm run test:nexus
+```

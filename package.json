@@ -21,7 +21,11 @@
     "portfolio:publish:johny": "node scripts/portfolio-publisher.mjs publish johny",
     "portfolio:pull:johny": "node scripts/portfolio-pull.mjs johny",
     "test:collector": "node --test scripts/cyberdjs-nexus-collector.test.mjs",
-    "test:local": "node --test scripts/local-projects.test.mjs"
+    "test:local": "node --test scripts/local-projects.test.mjs",
+    "test:history": "node --test scripts/activity-history.test.mjs",
+    "test:github": "node --test scripts/github-collaboration.test.mjs",
+    "test:insights": "node --test scripts/nexus-insights.test.mjs",
+    "test:nexus": "npm run test:local && npm run test:portfolio && npm run test:remote && npm run test:shared && npm run test:collector && npm run test:history && npm run test:github && npm run test:insights"
   },
   "license": "UNLICENSED",
   "private": true,
