@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { normalizeGitRemote } from "../src/lib/local-projects.ts";
-import { buildSharedPortfolio, matchesPortfolioScope } from "../src/lib/shared-portfolio.ts";
+import { buildSharedPortfolio, matchesPortfolioScope, ownerForLocalRoot } from "../src/lib/shared-portfolio.ts";
 
 function localProject(overrides = {}) {
   return {
@@ -19,8 +19,8 @@ function remoteProject(overrides = {}) {
   return portable;
 }
 
-function localSnapshot(projects) {
-  return { root: "/Users/eimyna/0_DEV", generatedAt: "2026-09-21T12:00:00.000Z", projects };
+function localSnapshot(projects, root = "/Users/eimyna/0_DEV") {
+  return { root, generatedAt: "2026-09-21T12:00:00.000Z", projects };
 }
 
 function johnySource(projects) {
@@ -30,6 +30,32 @@ function johnySource(projects) {
     message: `${projects.length} projects from JohnyBook`,
   }];
 }
+
+
+function eimySource(projects) {
+  return [{ key: "eimy", label: "Eimy", status: "ready", cachedAt: "2026-09-21T12:01:00.000Z",
+    snapshot: { schemaVersion: 1, source: "local-git", owner: "Eimy", device: "VoodooBook", generatedAt: "2026-09-21T12:00:00.000Z", projectCount: projects.length, projects },
+    message: `${projects.length} projects from VoodooBook`,
+  }, { key: "johny", label: "Johny", status: "missing", cachedAt: null, snapshot: null, message: "Not synced" }];
+}
+
+test("derives local owner from the portfolio root", () => {
+  assert.equal(ownerForLocalRoot("/Users/eimyna/0_DEV"), "Eimy");
+  assert.equal(ownerForLocalRoot("/Users/horsedriver/0_DEV/"), "Johny");
+});
+
+test("attributes Johny local projects to Johny and merges Eimy as remote collaborator", () => {
+  const shared = buildSharedPortfolio(
+    localSnapshot([localProject({ path: "/Users/horsedriver/0_DEV/CyberCore", head: "bbbbbbb" })], "/Users/horsedriver/0_DEV"),
+    eimySource([remoteProject({ head: "aaaaaaa" })]),
+  );
+  assert.equal(shared.length, 1);
+  assert.equal(shared[0].johny?.source, "local");
+  assert.equal(shared[0].eimy?.source, "remote");
+  assert.equal(shared[0].isShared, true);
+  assert.equal(shared[0].drift, "head-drift");
+  assert.equal(matchesPortfolioScope(shared[0], "Johny"), true);
+});
 
 test("normalizes HTTPS and SSH GitHub origins to one credential-free identity", () => {
   assert.equal(normalizeGitRemote("https://github.com/cyberDJs/CyberCore.git"), "github.com/cyberdjs/cybercore");

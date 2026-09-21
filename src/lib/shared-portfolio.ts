@@ -6,6 +6,13 @@ export type PortfolioOwner = "Eimy" | "Johny";
 export type PortfolioScope = "All" | PortfolioOwner | "Shared";
 export type DriftState = "aligned" | "head-drift" | "working-tree" | "head-and-working-tree" | "single-source";
 
+export function ownerForLocalRoot(root: string): PortfolioOwner {
+  const normalized = root.replace(/\/+$/, "");
+  if (normalized === "/Users/eimyna/0_DEV") return "Eimy";
+  if (normalized === "/Users/horsedriver/0_DEV") return "Johny";
+  throw new Error(`Unsupported local portfolio root for owner attribution: ${root}`);
+}
+
 export type SharedProjectSide = {
   owner: PortfolioOwner;
   source: "local" | "remote";
@@ -67,9 +74,15 @@ export function buildSharedPortfolio(local: PortfolioSnapshot, remoteSources: Re
     map.set(key, current);
   };
 
-  local.projects.forEach((project) => add("Eimy", "local", project));
-  const johny = remoteSources.find((source) => source.key === "johny" && source.status === "ready")?.snapshot;
-  johny?.projects.forEach((project) => add("Johny", "remote", project));
+  const localOwner = ownerForLocalRoot(local.root);
+  local.projects.forEach((project) => add(localOwner, "local", project));
+
+  remoteSources
+    .filter((source) => source.status === "ready" && source.snapshot && source.snapshot.owner !== localOwner)
+    .forEach((source) => {
+      const owner = source.snapshot!.owner as PortfolioOwner;
+      source.snapshot!.projects.forEach((project) => add(owner, "remote", project));
+    });
 
   return [...map.values()].sort((a, b) => Number(b.isShared) - Number(a.isShared) || a.name.localeCompare(b.name));
 }

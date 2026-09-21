@@ -142,7 +142,7 @@ On Eimy's machine, once `johny-latest.json` exists in the authorized shared WebD
 npm run portfolio:pull:johny
 ```
 
-The dashboard then merges Eimy live state with Johny's validated cached snapshot. `All / Eimy / Johny / Shared` filters operate on the unified identity model. Dedupe occurs only when both sides expose the same normalized Git `repositoryId`; same-name repositories without a remote identity are intentionally kept separate. Drift reports branch/HEAD divergence and local working-tree changes.
+The dashboard derives the live local owner from the local portfolio root (`/Users/eimyna/0_DEV` → Eimy, `/Users/horsedriver/0_DEV` → Johny) and merges the other owner from a validated cached snapshot. `All / Eimy / Johny / Shared` filters operate on the unified identity model. Dedupe occurs only when both sides expose the same normalized Git `repositoryId`; same-name repositories without a remote identity are intentionally kept separate. Drift reports branch/HEAD divergence and local working-tree changes.
 
 ## Portable Johny collector
 
